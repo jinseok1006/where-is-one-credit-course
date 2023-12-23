@@ -16,16 +16,20 @@ const mapped = $courses
     const pnt = $course.find('Col[id=PNT]').text();
     const subject = $course.find('Col[id=SBJTNM]').text();
     const major = $course.find('Col[id=SUSTCDNM]').text();
+    const target = $course.find('Col[id=TLSNOBJFG]').text();
 
-    return [[type, major.replaceAll(',', '/'), subject, parseInt(pnt)]];
+    // console.log(target, target.includes('전체'));
+
+    return [[type, major.replaceAll(',', '/'), subject, parseInt(pnt), target]];
   })
   .get();
 
 const filtered = mapped.filter(
-  ([type, major, subject, pnt]) =>
+  ([type, major, subject, pnt, target]) =>
     pnt === 1 &&
     type.match(/^.+(선택)|(필수)$/) &&
-    !major.match(/^(의)|(치의)|(간호)|(수의).+$/)
+    !major.match(/^(의|의예.*|치의.*|간호.*|수의.*) \d+$/) &&
+    target.includes('전체')
 );
 
 async function save() {
@@ -33,7 +37,7 @@ async function save() {
     const file = await fsPromises.open('filtered.csv', 'w+');
     // let buf = Buffer.alloc(1024);
     // await file.read(buf, 0, buf.length, 0);
-    file.write('구별,학과,과목,학점\n');
+    file.write('구별,학과,과목,학점,대상\n');
 
     const writePromises = filtered.map(
       async (e) => await file.write(e.join(',') + '\n', 'utf-8')
