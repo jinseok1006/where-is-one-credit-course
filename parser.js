@@ -17,7 +17,7 @@ const mapped = $courses
     const subject = $course.find('Col[id=SBJTNM]').text();
     const major = $course.find('Col[id=SUSTCDNM]').text();
 
-    return [[type, major, subject, parseInt(pnt)]];
+    return [[type, major.replaceAll(',', '/'), subject, parseInt(pnt)]];
   })
   .get();
 
